@@ -18,6 +18,7 @@
 // string stuff
 
 String cmd;  // received command from serial port/ASCOM
+
 // constants
 const char start = '$'; // output starter char (and EEPROM) not used on rx serial command
 const char terminator = '#'; // end character for string (rx and tx)
