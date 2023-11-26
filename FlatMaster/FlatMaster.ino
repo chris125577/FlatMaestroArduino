@@ -1,19 +1,19 @@
-// Receives byte as string with # terminator on serial
-// Writes output to analog pin and broadcasts back value
+// Receives number as string with # terminator on serial port
+// Writes output to analog pin and broadcasts back value 0-255
 /*
     Name:       FlatMaster.ino
     Created:	22/11/2023 10:46:25
     Author:     chris woodhouse
     V1.1        works - translates serial number string into pwm
+    V1.2        put in EEPROM save option - on line 45
 */
 
 // Define User Types below here or use a .h file
-//
+
 
 #include <EEPROM.h>
-#include <avr/wdt.h>   // library which has a watchdog function
 
-#define version "V1.1"   // change with version number
+#define version "V1.2"   // change with version number
 
 // string stuff
 
@@ -42,9 +42,8 @@ void setup()
     pinMode(LED_BUILTIN, OUTPUT); // for diagnostics
     Serial.begin(baud);  // 
     Serial.setTimeout(1000);
+    //readfromEEPROM();   // uncomment this line if you want LED to resume last brightness on power up.
     analogWrite(PWMpin, brightness);
-    //readEEPROM();
-    //wdt_enable(WDTO_2S);  // set up watchdog to kick in if it is not reset in 2 seconds
 }
 
 // Add the main program code into the continuous loop() function
@@ -57,7 +56,9 @@ void loop()
         {
             brightness = cmd.toInt();
             if (brightness > 255) brightness = 255;  // just to ensure compliance
+            if (brightness < 0) brightness = 0; // just to ensure compliance
             analogWrite(PWMpin, brightness); //  adjust panel
+            updateEEPROM();  // save brightness level to EEPROM
         }
         else  // pulse LED on for a second to highlight serial error condition
         {
@@ -72,7 +73,6 @@ void loop()
     }
     else delay(2000); // if no command, only broadcast every 2secs
     USBserial(); //broadcast status
-    //wdt_reset(); // reset watchdog timer on each cycle (cannot go beyond 2 seconds, which is a limitation)
 }
 
 // private utilities
@@ -83,34 +83,25 @@ void USBserial(void)   // broadcast status back (0 = off)
     Serial.print(terminator);  // terminal character
 }
 
-/* not sure whether to store brightness in EEPROM so that it comes on with power
-// update EEPROM with calibration string cmd (not required at present)
+// update EEPROM with brightness value
 void updateEEPROM()
 {
-    int i;
-    EEPROM.write(0, start); // cmd does not have start character from PC $nnn#
-    for (i = 1; (i < cmd.length() && cmd.length() < 5); i++)
-        EEPROM.write(i , cmd[i]);
-    EEPROM.write(cmd.length() + 1, terminator); // write framing terminator as terminator is stripped off rx string
+    byte level = int(brightness);
+    EEPROM.write(0, start); // cmd does not have start character from PC $nnn
+    EEPROM.write(1, level);
 }
 
-// read string up to '#' and put in cmd string, if nothing in eeprom, return false
-bool readfromEEPROM()
+// check eeprom has been initiated and return brightness value
+int readfromEEPROM()
 {
     if (EEPROM.read(0) != start)
     {
+        brightness = 0;
         return false;
     }
-    char c;
-    cmd = ""; // initialize command string
-    int index = 1;
-    c = EEPROM.read(index);
-    while (c != end && index < 5 ) // or max chars reached
+    else
     {
-        cmd = cmd + c;  // build command word
-        index++;
-        c = EEPROM.read(index); // read next character      
+        brightness = EEPROM.read(1);
+        return true;
     }
-    return true;
 }
-*/
