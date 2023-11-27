@@ -64,7 +64,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <IncludePath>C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\EEPROM\src;$(ProjectDir)..\..\libraries\AVR_PWM\src;C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino;C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\variants\\eightanaloginputs;c:\program files (x86)\arduino\hardware\tools\avr\lib\gcc\avr\7.3.0\include;c:\program files (x86)\arduino\hardware\tools\avr\lib\gcc\avr\7.3.0\include-fixed;c:\program files (x86)\arduino\hardware\tools\avr\avr\include;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\EEPROM\src;$(ProjectDir)..\..\libraries\AVR_PWM\src</IncludePath>
+    <IncludePath>$(ProjectDir)..\FlatMaster;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\EEPROM\src;$(ProjectDir)..\..\libraries\AVR_PWM\src;C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino;C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\variants\\eightanaloginputs;c:\program files (x86)\arduino\hardware\tools\avr\lib\gcc\avr\7.3.0\include;c:\program files (x86)\arduino\hardware\tools\avr\lib\gcc\avr\7.3.0\include-fixed;c:\program files (x86)\arduino\hardware\tools\avr\avr\include;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\EEPROM\src;$(ProjectDir)..\..\libraries\AVR_PWM\src</IncludePath>
     <RemoteCCompileToolExe>C:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr\bin\avr-g++</RemoteCCompileToolExe>
     <RemoteCppCompileToolExe>C:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr\bin\avr-g++</RemoteCppCompileToolExe>
     <ValidateArchitecture>false</ValidateArchitecture>
@@ -87,7 +87,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\EEPROM\src;$(ProjectDir)..\..\libraries\AVR_PWM\src;C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino;C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\variants\\eightanaloginputs;c:\program files (x86)\arduino\hardware\tools\avr\lib\gcc\avr\7.3.0\include;c:\program files (x86)\arduino\hardware\tools\avr\lib\gcc\avr\7.3.0\include-fixed;c:\program files (x86)\arduino\hardware\tools\avr\avr\include;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\EEPROM\src;$(ProjectDir)..\..\libraries\AVR_PWM\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\FlatMaster;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\EEPROM\src;$(ProjectDir)..\..\libraries\AVR_PWM\src;C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino;C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\variants\\eightanaloginputs;c:\program files (x86)\arduino\hardware\tools\avr\lib\gcc\avr\7.3.0\include;c:\program files (x86)\arduino\hardware\tools\avr\lib\gcc\avr\7.3.0\include-fixed;c:\program files (x86)\arduino\hardware\tools\avr\avr\include;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\EEPROM\src;$(ProjectDir)..\..\libraries\AVR_PWM\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <GccToolChain>C:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr\bin\avr-g++</GccToolChain>
       <CppLanguageStandard>gnu++11</CppLanguageStandard>
       <CLanguageStandard>gnu11</CLanguageStandard>

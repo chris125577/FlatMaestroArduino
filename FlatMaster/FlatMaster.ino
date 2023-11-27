@@ -28,10 +28,11 @@ const char terminator = '#'; // end character for string (rx and tx)
 const unsigned long baud = 19200; // serial baud rate
 const uint8_t PWMpin = 3;  // PWM pin
 const unsigned long frequency = 62500;  // slowest frequency
-float dutycycle = 0;  // 0-99
+//float dutycycle = 0;  // 0-99
+uint16_t dutycycle = 0;
 
 // global variables
-int brightness = 1;   // 0-255 brightness level
+int brightness = 0;   // 0-255 brightness level
 
 
 // Define Function Prototypes that use User Types below here or use a .h file
@@ -48,12 +49,12 @@ void setup()
     pinMode(LED_BUILTIN, OUTPUT); // for diagnostics
     Serial.begin(baud);  // 
     Serial.setTimeout(1000);
+    //readfromEEPROM();   // uncomment this line if you want LED to resume last brightness on power up.
+    // following three lines are for high speed PWM
+    dutycycle = (100 * brightness / 256.0);  // 0-99  (ignore documentation in GIT
     PWM_Instance = new AVR_PWM(PWMpin, frequency, dutycycle); //   clock/256, dutycycle= 0-99
     PWM_Instance->setPWM();
-    //readfromEEPROM();   // uncomment these lines if you want LED to resume last brightness on power up.
-    //analogWrite(PWMpin, brightness); // only for traditional PWM
-    //float dutyCycle = (brightness * 256);
-    //PWM_Instance->setPWM(PWMpin, 62500, dutyCycle);
+    if(brightness == 0) analogWrite(PWMpin, 0); // disable blips when zero  
 }
 
 // Add the main program code into the continuous loop() function
@@ -67,10 +68,9 @@ void loop()
             brightness = cmd.toInt();            
             if (brightness > 255) brightness = 255;  // just to ensure compliance
             if (brightness < 0) brightness = 0; // just to ensure compliance
-            // analogWrite(PWMpin, brightness); //  adjust panel
             if (brightness > 10)  // truncate below 5%
             {
-                dutycycle = (100 * brightness / 256.0);  // 0-99  (ignore documentation in GIT)
+                dutycycle = (100 * brightness / 256.0);  // 0-99  
                 PWM_Instance->setPWM(PWMpin, frequency, dutycycle);
                 updateEEPROM();  // save brightness level to EEPROM
             }
@@ -85,7 +85,6 @@ void loop()
             delay(1000);
             digitalWrite(LED_BUILTIN, LOW);
         }
-        //if(readfromEEPROM()) analogWrite(PWMpin, brightness);  // restore last status
         digitalWrite(LED_BUILTIN, HIGH);
         delay(100);
         digitalWrite(LED_BUILTIN, LOW);
