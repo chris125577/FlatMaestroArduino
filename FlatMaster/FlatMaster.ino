@@ -27,10 +27,10 @@ const char terminator = '#'; // end character for string (rx and tx)
 const unsigned long baud = 19200; // serial baud rate
 const uint8_t PWMpin = 3;  // PWM pin
 const unsigned long frequency = 62500;  // slowest frequency
-double dutycycle = 0;  // 0-99
+float dutycycle = 0;  // 0-99
 
 // global variables
-int brightness = 0;   // 0-255 brightness level
+int brightness = 1;   // 0-255 brightness level
 
 
 // Define Function Prototypes that use User Types below here or use a .h file
@@ -67,9 +67,16 @@ void loop()
             if (brightness > 255) brightness = 255;  // just to ensure compliance
             if (brightness < 0) brightness = 0; // just to ensure compliance
             // analogWrite(PWMpin, brightness); //  adjust panel
-            dutycycle = (100 * brightness / 256.0);  // 0-99  (ignore documentation in GIT)
-            PWM_Instance->setPWM(PWMpin, frequency, dutycycle);
-            updateEEPROM();  // save brightness level to EEPROM
+            if (brightness > 10)  // truncate below 5%
+            {
+                dutycycle = (100 * brightness / 256.0);  // 0-99  (ignore documentation in GIT)
+                PWM_Instance->setPWM(PWMpin, frequency, dutycycle);
+                updateEEPROM();  // save brightness level to EEPROM
+            }
+            else
+            {
+                analogWrite(PWMpin, 0); // disable blips when zero or <10
+            }
         }
         else  // pulse LED on for a second to highlight serial error condition
         {
