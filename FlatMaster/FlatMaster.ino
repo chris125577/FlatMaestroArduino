@@ -7,6 +7,7 @@
     V1.1        works - translates serial number string into pwm
     V1.2        put in EEPROM save option - on line 45
     V1.3        changed PWM output to higher frequency to prevent banding on camera
+    V1.4        PWM output is never flat zero - added analog out to do that
 */
 
 // Define User Types below here or use a .h file
@@ -15,7 +16,7 @@
 #include <EEPROM.h>
 #include <AVR_PWM.h>   // library for high speed hardware PWM
 
-#define version "V1.3"   // change with version number
+#define version "V1.4"   // change with version number
 
 // string stuff
 
