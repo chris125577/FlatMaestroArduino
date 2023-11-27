@@ -3,17 +3,19 @@
 /*
     Name:       FlatMaster.ino
     Created:	22/11/2023 10:46:25
-    Author:     chris woodhouse
+    Author:     chris woodhouse  cwoodhou@icloud.com
     V1.1        works - translates serial number string into pwm
     V1.2        put in EEPROM save option - on line 45
+    V1.3        changed PWM output to higher frequency to prevent banding on camera
 */
 
 // Define User Types below here or use a .h file
 
 
 #include <EEPROM.h>
+#include <AVR_PWM.h>   // library for high speed hardware PWM
 
-#define version "V1.2"   // change with version number
+#define version "V1.3"   // change with version number
 
 // string stuff
 
@@ -24,6 +26,8 @@ const char start = '$'; // output starter char (and EEPROM) not used on rx seria
 const char terminator = '#'; // end character for string (rx and tx)
 const unsigned long baud = 19200; // serial baud rate
 const uint8_t PWMpin = 3;  // PWM pin
+const unsigned long frequency = 62500;  // slowest frequency
+double dutycycle = 0;  // 0-99
 
 // global variables
 int brightness = 0;   // 0-255 brightness level
@@ -31,7 +35,7 @@ int brightness = 0;   // 0-255 brightness level
 
 // Define Function Prototypes that use User Types below here or use a .h file
 //
-
+AVR_PWM* PWM_Instance;
 
 // Define Functions below here or use other .ino or cpp files
 //
@@ -43,8 +47,12 @@ void setup()
     pinMode(LED_BUILTIN, OUTPUT); // for diagnostics
     Serial.begin(baud);  // 
     Serial.setTimeout(1000);
-    //readfromEEPROM();   // uncomment this line if you want LED to resume last brightness on power up.
-    analogWrite(PWMpin, brightness);
+    PWM_Instance = new AVR_PWM(PWMpin, frequency, dutycycle); //   clock/256, dutycycle= 0-99
+    PWM_Instance->setPWM();
+    //readfromEEPROM();   // uncomment these lines if you want LED to resume last brightness on power up.
+    //analogWrite(PWMpin, brightness); // only for traditional PWM
+    //float dutyCycle = (brightness * 256);
+    //PWM_Instance->setPWM(PWMpin, 62500, dutyCycle);
 }
 
 // Add the main program code into the continuous loop() function
@@ -55,10 +63,12 @@ void loop()
         cmd = Serial.readStringUntil(terminator);  //  cmd has just string and not end character, should be up to three chars
         if (cmd != NULL) 
         {
-            brightness = cmd.toInt();
+            brightness = cmd.toInt();            
             if (brightness > 255) brightness = 255;  // just to ensure compliance
             if (brightness < 0) brightness = 0; // just to ensure compliance
-            analogWrite(PWMpin, brightness); //  adjust panel
+            // analogWrite(PWMpin, brightness); //  adjust panel
+            dutycycle = (100 * brightness / 256.0);  // 0-99  (ignore documentation in GIT)
+            PWM_Instance->setPWM(PWMpin, frequency, dutycycle);
             updateEEPROM();  // save brightness level to EEPROM
         }
         else  // pulse LED on for a second to highlight serial error condition
