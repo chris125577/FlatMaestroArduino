@@ -8,6 +8,7 @@
     V1.2        put in EEPROM save option - on line 45
     V1.3        changed PWM output to higher frequency to prevent banding on camera
     V1.4        PWM output is never flat zero - added analog out to do that
+    V1.5        rescaled input to usable range 0-255 >> 10-250
 */
 
 // Define User Types below here or use a .h file
@@ -28,8 +29,7 @@ const char terminator = '#'; // end character for string (rx and tx)
 const unsigned long baud = 19200; // serial baud rate
 const uint8_t PWMpin = 3;  // PWM pin
 const unsigned long frequency = 62500;  // slowest frequency
-//float dutycycle = 0;  // 0-99
-uint16_t dutycycle = 0;
+float dutycycle = 0;  // 0-99
 
 // global variables
 int brightness = 0;   // 0-255 brightness level
@@ -51,7 +51,8 @@ void setup()
     Serial.setTimeout(1000);
     //readfromEEPROM();   // uncomment this line if you want LED to resume last brightness on power up.
     // following three lines are for high speed PWM
-    dutycycle = (100 * brightness / 256.0);  // 0-99  (ignore documentation in GIT
+    if (brightness != 0) dutycycle = (100 * (11 + brightness) / 273.0);  // 0-255 = 4-97%  (ignore documentation in GIT
+    else dutycycle = 0;
     PWM_Instance = new AVR_PWM(PWMpin, frequency, dutycycle); //   clock/256, dutycycle= 0-99
     PWM_Instance->setPWM();
     if(brightness == 0) analogWrite(PWMpin, 0); // disable blips when zero  
@@ -68,15 +69,15 @@ void loop()
             brightness = cmd.toInt();            
             if (brightness > 255) brightness = 255;  // just to ensure compliance
             if (brightness < 0) brightness = 0; // just to ensure compliance
-            if (brightness > 10)  // truncate below 5%
+            if (brightness > 0)  // truncate below 5%
             {
-                dutycycle = (100 * brightness / 256.0);  // 0-99  
+                dutycycle = (100 * (11 + brightness) / 273.0);  // 4-97  %
                 PWM_Instance->setPWM(PWMpin, frequency, dutycycle);
                 updateEEPROM();  // save brightness level to EEPROM
             }
             else
             {
-                analogWrite(PWMpin, 0); // disable blips when zero or <10
+                analogWrite(PWMpin, 0); // disable blips when zero 
             }
         }
         else  // pulse LED on for a second to highlight serial error condition
