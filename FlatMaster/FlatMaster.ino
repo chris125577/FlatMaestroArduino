@@ -54,7 +54,7 @@ void setup()
     if (brightness != 0) dutycycle = (100 * (11 + brightness) / 273.0);  // 0-255 = 4-97%  (ignore documentation in GIT
     else dutycycle = 0;
     PWM_Instance = new AVR_PWM(PWMpin, frequency, dutycycle); //   clock/256, dutycycle= 0-99
-    PWM_Instance->setPWM();
+    PWM_Instance->setPWM(); // initialize  but override if zero...
     if(brightness == 0) analogWrite(PWMpin, 0); // disable blips when zero  
 }
 
@@ -66,10 +66,10 @@ void loop()
         cmd = Serial.readStringUntil(terminator);  //  cmd has just string and not end character, should be up to three chars
         if (cmd != NULL) 
         {
-            brightness = cmd.toInt();            
+            brightness = cmd.toInt();        // bring in ASCOM brightness level command     
             if (brightness > 255) brightness = 255;  // just to ensure compliance
             if (brightness < 0) brightness = 0; // just to ensure compliance
-            if (brightness > 0)  // truncate below 5%
+            if (brightness != 0)  // truncate below 5%
             {
                 dutycycle = (100 * (11 + brightness) / 273.0);  // 4-97  %
                 PWM_Instance->setPWM(PWMpin, frequency, dutycycle);
@@ -77,6 +77,7 @@ void loop()
             }
             else
             {
+                dutycycle = 0;
                 analogWrite(PWMpin, 0); // disable blips when zero 
             }
         }
@@ -87,7 +88,7 @@ void loop()
             digitalWrite(LED_BUILTIN, LOW);
         }
         digitalWrite(LED_BUILTIN, HIGH);
-        delay(100);
+        delay(100);  // short pulse to show received command
         digitalWrite(LED_BUILTIN, LOW);
     }
     else delay(2000); // if no command, only broadcast every 2secs
