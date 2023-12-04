@@ -9,6 +9,7 @@
     V1.3        changed PWM output to higher frequency to prevent banding on camera
     V1.4        PWM output is never flat zero - added analog out to do that
     V1.5        rescaled input to usable range 0-255 >> 10-250
+    V1.6        not convinced it has fine resolution, changing to 0-100 %input
 */
 
 // Define User Types below here or use a .h file
@@ -29,10 +30,11 @@ const char terminator = '#'; // end character for string (rx and tx)
 const unsigned long baud = 19200; // serial baud rate
 const uint8_t PWMpin = 3;  // PWM pin
 const unsigned long frequency = 62500;  // slowest frequency
-float dutycycle = 0;  // 0-99
+const int maxlevel = 100;  //ascom level
+float dutycycle = 0;  // 4-97
 
 // global variables
-int brightness = 0;   // 0-255 brightness level
+int brightness = 0;   // 0-100 brightness level
 
 
 // Define Function Prototypes that use User Types below here or use a .h file
@@ -51,9 +53,9 @@ void setup()
     Serial.setTimeout(1000);
     //readfromEEPROM();   // uncomment this line if you want LED to resume last brightness on power up.
     // following three lines are for high speed PWM
-    if (brightness != 0) dutycycle = (100 * (11 + brightness) / 273.0);  // 0-255 = 4-97%  (ignore documentation in GIT
+    if (brightness != 0) dutycycle = ((4 + brightness)/107 );  // 0-100 = 4-97%  (ignore documentation in GIT
     else dutycycle = 0;
-    PWM_Instance = new AVR_PWM(PWMpin, frequency, dutycycle); //   clock/256, dutycycle= 0-99
+    PWM_Instance = new AVR_PWM(PWMpin, frequency, dutycycle); //   clock/256, dutycycle= 4-97
     PWM_Instance->setPWM(); // initialize  but override if zero...
     if(brightness == 0) analogWrite(PWMpin, 0); // disable blips when zero  
 }
@@ -67,11 +69,11 @@ void loop()
         if (cmd != NULL) 
         {
             brightness = cmd.toInt();        // bring in ASCOM brightness level command     
-            if (brightness > 255) brightness = 255;  // just to ensure compliance
+            if (brightness > maxlevel) brightness = maxlevel;  // just to ensure compliance
             if (brightness < 0) brightness = 0; // just to ensure compliance
             if (brightness != 0)  // truncate below 5%
             {
-                dutycycle = (100 * (11 + brightness) / 273.0);  // 4-97  %
+                dutycycle = ((4 + brightness) / 107);  // 4-97  %
                 PWM_Instance->setPWM(PWMpin, frequency, dutycycle);
                 updateEEPROM();  // save brightness level to EEPROM
             }
