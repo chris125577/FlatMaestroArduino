@@ -18,7 +18,7 @@
 #include <EEPROM.h>
 #include <AVR_PWM.h>   // library for high speed hardware PWM
 
-#define version "V1.5"   // change with version number
+#define version "V1.6"   // change with version number
 
 // string stuff
 
