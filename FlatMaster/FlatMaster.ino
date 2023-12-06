@@ -10,6 +10,7 @@
     V1.4        PWM output is never flat zero - added analog out to do that
     V1.5        rescaled input to usable range 0-255 >> 10-250
     V1.6        not convinced it has fine resolution, changing to 0-100 %input
+    V1.7        doh! moment - PWM is 0-100 not 0-1
 */
 
 // Define User Types below here or use a .h file
@@ -18,7 +19,7 @@
 #include <EEPROM.h>
 #include <AVR_PWM.h>   // library for high speed hardware PWM
 
-#define version "V1.6"   // change with version number
+#define version "V1.7"   // change with version number
 
 // string stuff
 
@@ -53,7 +54,7 @@ void setup()
     Serial.setTimeout(1000);
     //readfromEEPROM();   // uncomment this line if you want LED to resume last brightness on power up.
     // following three lines are for high speed PWM
-    if (brightness != 0) dutycycle = ((4 + brightness)/107 );  // 0-100 = 4-97%  (ignore documentation in GIT
+    if (brightness != 0) dutycycle = (100 * (4 + brightness)/107 );  // 0-100 = 4-97%  (ignore documentation in GIT
     else dutycycle = 0;
     PWM_Instance = new AVR_PWM(PWMpin, frequency, dutycycle); //   clock/256, dutycycle= 4-97
     PWM_Instance->setPWM(); // initialize  but override if zero...
@@ -73,7 +74,7 @@ void loop()
             if (brightness < 0) brightness = 0; // just to ensure compliance
             if (brightness != 0)  // truncate below 5%
             {
-                dutycycle = ((4 + brightness) / 107);  // 4-97  %
+                dutycycle = (100 * (4 + brightness) / 107);  // 4-97  %
                 PWM_Instance->setPWM(PWMpin, frequency, dutycycle);
                 updateEEPROM();  // save brightness level to EEPROM
             }
